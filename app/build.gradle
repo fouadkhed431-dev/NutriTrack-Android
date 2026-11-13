@@ -1,3 +1,17 @@
+
 plugins {
-    id 'com.android.application' version '8.7.3' apply false
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.nutritrack.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.nutritrack.app'
+        minSdk 23
+        targetSdk 35
+        versionCode 2
+        versionName '2.0'
+    }
 }
