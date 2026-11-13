@@ -20,6 +20,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.content.ContentValues;
 import android.util.Base64;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import com.googlecode.tesseract.android.TessBaseAPI;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -76,7 +82,69 @@ protected void onCreate(Bundle savedInstanceState) {
     webView.loadUrl("file:///android_asset/index.html");  
 }  
 
-public class AndroidBridge {  
+public class AndroidBridge {
+    // Offline OCR after the Arabic and English language packs have been downloaded once.
+    @JavascriptInterface
+    public String recognizeNutritionLabel(String imageDataUrl) {
+        TessBaseAPI tess = null;
+        try {
+            if (imageDataUrl == null) return "ERROR:No image was supplied";
+            int comma = imageDataUrl.indexOf(',');
+            String encoded = comma >= 0 ? imageDataUrl.substring(comma + 1) : imageDataUrl;
+            byte[] imageBytes = Base64.decode(encoded, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            if (bitmap == null) return "ERROR:Could not decode image";
+
+            File baseDir = new File(getFilesDir(), "nutritrack-ocr");
+            File dataDir = new File(baseDir, "tessdata");
+            if (!dataDir.exists() && !dataDir.mkdirs()) throw new IOException("Cannot create OCR data folder");
+            ensureLanguageFile(dataDir, "eng");
+            ensureLanguageFile(dataDir, "ara");
+
+            tess = new TessBaseAPI();
+            if (!tess.init(baseDir.getAbsolutePath(), "eng+ara")) {
+                tess.recycle();
+                return "ERROR:OCR engine could not initialize";
+            }
+            tess.setImage(bitmap);
+            String result = tess.getUTF8Text();
+            tess.clear();
+            bitmap.recycle();
+            return result == null ? "" : result;
+        } catch (Exception e) {
+            return "ERROR:" + (e.getMessage() == null ? "OCR failed" : e.getMessage());
+        } finally {
+            if (tess != null) {
+                try { tess.recycle(); } catch (Exception ignored) { }
+            }
+        }
+    }
+
+    private void ensureLanguageFile(File dataDir, String language) throws IOException {
+        File target = new File(dataDir, language + ".traineddata");
+        if (target.exists() && target.length() > 100000) return;
+        URL url = new URL("https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/" + language + ".traineddata");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(20000);
+        connection.setReadTimeout(60000);
+        connection.setInstanceFollowRedirects(true);
+        try {
+            int code = connection.getResponseCode();
+            if (code != 200) throw new IOException("Could not download " + language + " OCR data (HTTP " + code + ")");
+            File temp = new File(dataDir, language + ".traineddata.tmp");
+            try (InputStream in = connection.getInputStream(); FileOutputStream out = new FileOutputStream(temp)) {
+                byte[] buffer = new byte[8192];
+                int count;
+                while ((count = in.read(buffer)) != -1) out.write(buffer, 0, count);
+            }
+            if (!temp.renameTo(target)) {
+                temp.delete();
+                throw new IOException("Could not save OCR language data");
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
     @JavascriptInterface  
     public void saveFile(String filename, String base64Data, String mimeType) {  
         try {  
