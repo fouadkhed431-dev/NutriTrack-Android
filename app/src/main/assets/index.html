@@ -47,12 +47,13 @@ nav button{background:transparent;color:#7b8981;font-size:10px;padding:5px 1px;d
 <div class="card"><div class="cardhead"><h2>📷 Add packaged product</h2><span class="small muted">Photo + manual verification</span></div>
 <div class="field"><label>Product photo (camera or gallery)</label><input id="productPhoto" type="file" accept="image/*" capture="environment"><img id="productPreview" class="productphoto" style="display:none" alt="Product label preview"></div>
 <div class="notice">Take a clear photo of the nutrition label, then enter the values exactly as printed. Automatic Arabic label reading is not enabled in this offline build, so always verify the numbers yourself.</div>
-<div class="formgrid"><div class="field wide"><label>Product name</label><input id="productName" placeholder="Brand and product name"></div><div class="field"><label>Barcode (optional)</label><input id="productBarcode" inputmode="numeric" placeholder="Scan or type barcode"></div><div class="field"><label>Serving size (g)</label><input id="productServing" type="number" min="1" value="100"></div><div class="field"><label>Calories / 100g</label><input id="productK" type="number" min="0"></div><div class="field"><label>Protein / 100g</label><input id="productP" type="number" min="0"></div><div class="field"><label>Fat / 100g</label><input id="productF" type="number" min="0"></div><div class="field"><label>Carbs / 100g</label><input id="productC" type="number" min="0"></div><div class="field"><label>Sugar / 100g</label><input id="productSugar" type="number" min="0"></div></div>
+<div class="formgrid"><div class="field wide"><label>Product name</label><input id="productName" placeholder="Brand and product name"></div><div class="field"><label>Barcode (optional)</label><input id="productBarcode" inputmode="numeric" placeholder="Scan or type barcode"><button type="button" class="soft small" id="lookupBarcode" style="margin-top:6px">Find product by barcode (online)</button></div><div class="field"><label>Serving size (g)</label><input id="productServing" type="number" min="1" value="100"></div><div class="field"><label>Calories / 100g</label><input id="productK" type="number" min="0"></div><div class="field"><label>Protein / 100g</label><input id="productP" type="number" min="0"></div><div class="field"><label>Fat / 100g</label><input id="productF" type="number" min="0"></div><div class="field"><label>Carbs / 100g</label><input id="productC" type="number" min="0"></div><div class="field"><label>Sugar / 100g</label><input id="productSugar" type="number" min="0"></div></div>
 <button class="primary" id="saveProduct" style="width:100%">Save product to my food database</button></div>
 </section>
 <section id="meals" class="page"><div class="card"><div class="cardhead"><h2>Saved meals</h2><span class="small muted">Reuse your usual meals</span></div><div id="savedMeals"></div></div><div class="card"><h2>Save a meal from today's diary</h2><div class="field"><label>Meal name</label><input id="mealName" placeholder="e.g. My usual breakfast"></div><div class="field"><label>Copy which meal?</label><select id="mealToSave"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Pre-workout</option><option>Post-workout</option></select></div><button class="primary" id="saveMealBtn" style="width:100%">Save meal</button></div></section>
 <section id="progress" class="page"><div class="card"><div class="cardhead"><h2>Weekly calories</h2><span class="small muted">Last 7 days</span></div><div class="barlist" id="weekBars"></div><div class="statgrid" style="margin-top:15px"><div class="stat"><b id="weekAvg">0</b><small>Average kcal / day</small></div><div class="stat"><b id="weekDays">0</b><small>Days logged</small></div></div></div><div class="card"><div class="cardhead"><h2>Weight tracker</h2><span class="small muted">kg</span></div><div class="formgrid"><div class="field"><label>Weight (kg)</label><input id="weightValue" type="number" step=".1" placeholder="e.g. 95.5"></div><div class="field"><label>Date</label><input id="weightDate" type="date"></div></div><button class="primary" id="addWeight" style="width:100%">Save weight</button><div id="weightHistory" style="margin-top:12px"></div></div></section>
 <section id="settings" class="page"><div class="card"><h2>Daily targets</h2><div class="formgrid"><div class="field"><label>Calories (kcal)</label><input id="targetK" type="number"></div><div class="field"><label>Protein (g)</label><input id="targetP" type="number"></div><div class="field"><label>Fat (g)</label><input id="targetF" type="number"></div><div class="field"><label>Carbs (g)</label><input id="targetC" type="number"></div></div><button class="primary" id="saveTargets" style="width:100%">Save targets</button></div>
+<div class="card"><h2>Appearance</h2><p class="small muted">Choose a display theme for comfortable use.</p><button class="soft" id="themeToggle" style="width:100%">Toggle dark mode</button></div>
 <div class="card"><h2>Data & backup</h2><p class="small muted">Your data stays on this device. Export a backup regularly, especially before changing phones or clearing browser data.</p><div class="actions"><button class="soft" id="backup">Export backup</button><button class="soft" id="restoreBtn">Import backup</button></div><input id="restoreFile" type="file" accept="application/json" hidden><button class="ghost" id="exportCsv" style="width:100%;margin-top:9px">Export food diary CSV</button></div>
 <div class="card"><h2>Food database manager</h2><div class="foodtools"><input id="dbSearch" placeholder="Search Arabic / English / barcode"><button class="soft" id="exportFoods">Export DB</button><button class="soft" id="importFoodsBtn">Import DB</button><input id="importFoodsFile" type="file" accept="application/json" hidden></div><div id="foodManager" style="margin-top:10px"></div></div>
 <div class="card"><h2>Food database</h2><div class="statgrid"><div class="stat"><b id="foodCount">0</b><small>Reference foods</small></div><div class="stat"><b id="customCount">0</b><small>Custom foods</small></div></div><p class="small muted">Based on the uploaded Food Composition Tables workbook. Custom foods are stored separately and included in search.</p></div></section>
@@ -75,7 +76,7 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.pa
 function totals(arr){return arr.reduce((t,x)=>{["kcal","protein","fat","carbs"].forEach(k=>t[k]+=num(x[k]));return t},{kcal:0,protein:0,fat:0,carbs:0})}
 function renderHome(){let a=totals(dayEntries()),g=state.targets,pct=g.kcal?Math.round(a.kcal/g.kcal*100):0;el("totalKcal").textContent=fmt(a.kcal);el("calGoalText").textContent=fmt(g.kcal);el("remaining").textContent=fmt(Math.max(0,g.kcal-a.kcal));el("pct").textContent=pct+"%";el("ring").style.setProperty("--p",Math.min(100,pct)+"%");el("todayLabel").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"});el("dayShort").textContent=dateISO();
 let ms=[["Protein","protein",g.protein],["Carbs","carbs",g.carbs],["Fat","fat",g.fat]];el("macroSummary").innerHTML=ms.map(([n,k,target])=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><b>${n}</b><span>${fmt(a[k])} / ${fmt(target)} g</span></div><div class="track"><i style="width:${Math.min(100,target?a[k]/target*100:0)}%"></i></div></div>`).join("");
-const meals=["Breakfast","Lunch","Dinner","Snack","Pre-workout","Post-workout"];el("todayDiary").innerHTML=meals.map(m=>{let rows=dayEntries().filter(x=>x.meal===m);if(!rows.length)return "";let t=totals(rows);return `<div class="meal"><div class="mealtitle"><span>${m}</span><span class="small muted">${fmt(t.kcal)} kcal</span></div>${rows.map(x=>`<div class="foodrow"><div class="foodinfo"><b>${esc(x.name)}</b><small>${fmt(x.grams)} g · P ${fmt(x.protein)} · C ${fmt(x.carbs)} · F ${fmt(x.fat)}</small></div><div class="foodnum">${fmt(x.kcal)} kcal</div><button class="remove" onclick="removeEntry('${x.id}')">×</button></div>`).join("")}</div>`}).join("")||'<div class="empty">Nothing logged today yet.<br>Tap “Add food” to get started.</div>'}
+const meals=["Breakfast","Lunch","Dinner","Snack","Pre-workout","Post-workout"];el("todayDiary").innerHTML=meals.map(m=>{let rows=dayEntries().filter(x=>x.meal===m);if(!rows.length)return "";let t=totals(rows);return `<div class="meal"><div class="mealtitle"><span>${m}</span><span class="small muted">${fmt(t.kcal)} kcal</span></div>${rows.map(x=>`<div class="foodrow"><div class="foodinfo"><b>${esc(x.name)}</b><small>${fmt(x.grams)} g · P ${fmt(x.protein)} · C ${fmt(x.carbs)} · F ${fmt(x.fat)}</small></div><div class="foodnum">${fmt(x.kcal)} kcal</div><button class="soft small" onclick="editEntry('${x.id}')">Edit</button><button class="ghost small" onclick="copyEntry('${x.id}')">Copy</button><button class="remove" onclick="removeEntry('${x.id}')">×</button></div>`).join("")}</div>`}).join("")||'<div class="empty">Nothing logged today yet.<br>Tap “Add food” to get started.</div>'}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function allFoods(){return [...referenceFoods,...state.customFoods,...state.products]}
 function searchFoods(q){q=q.trim().toLocaleLowerCase();if(!q)return [];return allFoods().filter(f=>f.name.toLocaleLowerCase().includes(q)||(f.ar||"").toLocaleLowerCase().includes(q)||(f.barcode||"").toLocaleLowerCase().includes(q)).slice(0,12)}
@@ -114,4 +115,47 @@ function download(name,data,type){if(window.AndroidBridge&&window.AndroidBridge.
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;el("installBtn").style.display="block"});el("installBtn").onclick=async()=>{if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;el("installBtn").style.display="none"}else toast("Use browser menu → Install app / Add to Home screen")};
 if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 renderHome();renderSettings();el("todayLabel").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+// NutriTrack 2.1 enhancements
+function editEntry(id){
+ const x=state.entries.find(e=>String(e.id)===String(id)); if(!x)return;
+ const grams=prompt('Quantity in grams',x.grams); if(grams===null)return;
+ const g=Number(grams); if(!Number.isFinite(g)||g<=0)return toast('Enter a valid quantity');
+ const base=x.grams>0?g/x.grams:1; x.grams=g;
+ ['kcal','protein','fat','carbs','sugar'].forEach(k=>{if(x[k]!==undefined)x[k]=rnd(num(x[k])*base)});
+ const meal=prompt('Meal category',x.meal||'Snack'); if(meal!==null&&meal.trim())x.meal=meal.trim();
+ save();renderHome();toast('Diary entry updated');
+}
+function copyEntry(id){
+ const x=state.entries.find(e=>String(e.id)===String(id));if(!x)return;
+ const d=prompt('Copy to date (YYYY-MM-DD)',dateISO());if(!d)return;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return toast('Use date format YYYY-MM-DD');
+ const meal=prompt('Meal category',x.meal||'Snack');
+ state.entries.push({...x,id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2),date:d,meal:meal||x.meal});
+ save();renderHome();toast('Food copied to '+d);
+}
+// Allow saved meals to be added to a chosen meal instead of always Breakfast.
+const _useMeal=useMeal;
+useMeal=function(i){const m=state.meals[i];if(!m)return;const target=prompt('Add this meal to which category?','Breakfast');if(target===null)return;m.items.forEach(x=>state.entries.push({...x,id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2),date:dateISO(),meal:target}));save();renderHome();toast('Meal added to '+target);go('home')};
+// Online barcode lookup through Open Food Facts; manual entry remains available offline.
+if(el('lookupBarcode'))el('lookupBarcode').onclick=async()=>{
+ const code=(el('productBarcode').value||'').replace(/\D/g,'');if(!code)return toast('Enter a barcode first');
+ const btn=el('lookupBarcode');btn.disabled=true;btn.textContent='Searching…';
+ try{
+  const res=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json');
+  if(!res.ok)throw Error('Network error');const data=await res.json();if(data.status!==1||!data.product)throw Error('Product not found');
+  const q=data.product,n=q.nutriments||{};el('productName').value=q.product_name||q.product_name_en||'';
+  const set=(id,v)=>{if(v!==undefined&&v!==null&&Number.isFinite(Number(v)))el(id).value=Number(v)};
+  set('productK',n['energy-kcal_100g']??(n['energy_100g']?Number(n['energy_100g'])/4.184:null));
+  set('productP',n.proteins_100g);set('productF',n.fat_100g);set('productC',n.carbohydrates_100g);set('productSugar',n.sugars_100g);
+  toast('Product data found — verify every value before saving');
+ }catch(e){toast(e.message==='Product not found'?'No product found. Enter values manually.':'Could not connect. Check internet and try again.')}
+ finally{btn.disabled=false;btn.textContent='Find product by barcode (online)'}
+};
+// Dark mode preference
+const THEMEKEY='nutritrack_theme';
+function applyTheme(mode){const dark=mode==='dark';document.documentElement.style.setProperty('--bg',dark?'#101a17':'#f3f6f4');document.documentElement.style.setProperty('--card',dark?'#1b2924':'#fff');document.documentElement.style.setProperty('--ink',dark?'#edf5f0':'#182522');document.documentElement.style.setProperty('--line',dark?'#30443a':'#e5ece8');document.documentElement.style.setProperty('--green2',dark?'#263d34':'#e8f4ef');document.documentElement.style.setProperty('--muted',dark?'#a5b7ad':'#718078');document.body.dataset.theme=mode;}
+applyTheme(localStorage.getItem(THEMEKEY)||'light');
+if(el('themeToggle'))el('themeToggle').onclick=()=>{const next=document.body.dataset.theme==='dark'?'light':'dark';localStorage.setItem(THEMEKEY,next);applyTheme(next);toast(next==='dark'?'Dark mode enabled':'Light mode enabled')};
+
 </script></body></html>
