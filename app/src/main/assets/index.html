@@ -5,7 +5,7 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>NutriTrack — Daily Nutrition</title>
 <style>
-:root{--green:#176b55;--green2:#e8f4ef;--ink:#182522;--muted:#718078;--bg:#f3f6f4;--card:#fff;--line:#e5ece8;--red:#b74b4b;--amber:#b77a25;--shadow:0 8px 25px #16382b0b}
+:root{--green:#176b55;--green2:#e8f4ef;--ink:#182522;--muted:#718078;--bg:#f3f6f4;--card:#fff;--field-bg:#fbfdfb;--nav-bg:#ffffffed;--soft-surface:#f3f6f4;--track-bg:#e8eeea;--line:#e5ece8;--red:#b74b4b;--amber:#b77a25;--shadow:0 8px 25px #16382b0b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 button,input,select{font:inherit}button{cursor:pointer;border:0}header{background:var(--green);color:#fff;padding:20px 18px 24px;border-radius:0 0 25px 25px}
 .headrow{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;font-weight:800;letter-spacing:-.5px}.sub{font-size:12px;opacity:.8}.date{font-size:12px;opacity:.9;margin-top:14px}
@@ -13,14 +13,14 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}header{backgroun
 .cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.cardhead h2{font-size:16px;margin:0}.muted{color:var(--muted)}.small{font-size:12px}
 .kcalrow{display:flex;align-items:center;justify-content:space-between;gap:14px}.bigkcal{font-size:34px;font-weight:850;letter-spacing:-1px}.goaltext{font-size:12px;color:var(--muted)}
 .ring{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--p,0%),#e8efeb 0);position:relative;flex-shrink:0}
-.ring:before{content:"";position:absolute;inset:7px;background:white;border-radius:50%}.ring span{position:relative;font-size:15px;font-weight:800}
-.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.macro{background:#f7faf8;border:1px solid var(--line);border-radius:13px;padding:11px}.macro b{display:block;font-size:18px}.macro span{font-size:11px;color:var(--muted)}.track{height:5px;border-radius:9px;background:#e8eeea;margin-top:8px;overflow:hidden}.track i{display:block;height:100%;background:var(--green);width:0}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.soft,.ghost{padding:12px 14px;border-radius:12px;font-weight:700}.primary{background:var(--green);color:#fff}.soft{background:var(--green2);color:var(--green)}.ghost{background:#f3f6f4;color:var(--ink)}
+.ring:before{content:"";position:absolute;inset:7px;background:var(--card);border-radius:50%}.ring span{position:relative;font-size:15px;font-weight:800}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.macro{background:#f7faf8;border:1px solid var(--line);border-radius:13px;padding:11px}.macro b{display:block;font-size:18px}.macro span{font-size:11px;color:var(--muted)}.track{height:5px;border-radius:9px;background:var(--track-bg);margin-top:8px;overflow:hidden}.track i{display:block;height:100%;background:var(--green);width:0}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.soft,.ghost{padding:12px 14px;border-radius:12px;font-weight:700}.primary{background:var(--green);color:#fff}.soft{background:var(--green2);color:var(--green)}.ghost{background:var(--soft-surface);color:var(--ink)}
 .meal{border-top:1px solid var(--line);padding:12px 0}.meal:first-child{border-top:0}.mealtitle{display:flex;justify-content:space-between;align-items:center;font-weight:750;font-size:14px;margin-bottom:7px}.foodrow{display:flex;align-items:center;gap:10px;padding:8px 0}.foodinfo{flex:1;min-width:0}.foodinfo b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.foodinfo small{color:var(--muted);font-size:11px}.foodnum{text-align:right;font-size:12px;white-space:nowrap}.remove{background:#fff0ef;color:var(--red);border-radius:8px;padding:6px 9px}
-nav{position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 5px calc(8px + env(safe-area-inset-bottom));z-index:10}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 5px calc(8px + env(safe-area-inset-bottom));z-index:10}
 nav button{background:transparent;color:#7b8981;font-size:10px;padding:5px 1px;display:flex;flex-direction:column;align-items:center;gap:3px}nav button .ico{font-size:19px}nav button.active{color:var(--green);font-weight:800}
-.page{display:none}.page.active{display:block}.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);background:#fbfdfb;border-radius:11px;padding:12px;color:var(--ink);outline-color:var(--green)}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.wide{grid-column:1/-1}.suggest{max-height:210px;overflow:auto;border:1px solid var(--line);border-radius:11px;margin-top:5px;display:none}.suggest button{width:100%;text-align:left;background:#fff;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink)}.suggest button:last-child{border:0}.suggest small{display:block;color:var(--muted)}
+.page{display:none}.page.active{display:block}.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);background:var(--field-bg);border-radius:11px;padding:12px;color:var(--ink);outline-color:var(--green)}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.wide{grid-column:1/-1}.suggest{max-height:210px;overflow:auto;border:1px solid var(--line);border-radius:11px;margin-top:5px;display:none}.suggest button{width:100%;text-align:left;background:var(--card);padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink)}.suggest button:last-child{border:0}.suggest small{display:block;color:var(--muted)}
 .preview{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.preview div{background:var(--green2);border-radius:10px;padding:8px 3px;text-align:center}.preview b{display:block;font-size:14px}.preview span{font-size:10px;color:var(--muted)}
 .listitem{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.listitem:last-child{border:0}.empty{text-align:center;padding:25px 10px;color:var(--muted);font-size:13px}
 .tabs{display:flex;gap:7px;overflow:auto;margin-bottom:12px}.tabs button{background:#edf2ef;color:var(--muted);border-radius:20px;padding:8px 13px;white-space:nowrap;font-size:12px}.tabs button.on{background:var(--green);color:#fff}
@@ -46,7 +46,9 @@ nav button{background:transparent;color:#7b8981;font-size:10px;padding:5px 1px;d
 <div class="card"><div class="cardhead"><h2>Create custom food</h2><span class="small muted">For missing items</span></div><div class="formgrid"><div class="field wide"><label>Food name</label><input id="customName" placeholder="Food name"></div><div class="field wide"><label>Arabic name (optional)</label><input id="customAr" placeholder="اسم الطعام"></div><div class="field"><label>Calories / 100g</label><input id="customK" type="number" min="0"></div><div class="field"><label>Protein / 100g</label><input id="customP" type="number" min="0"></div><div class="field"><label>Fat / 100g</label><input id="customF" type="number" min="0"></div><div class="field"><label>Carbs / 100g</label><input id="customC" type="number" min="0"></div></div><button class="soft" id="saveCustom" style="width:100%">Save custom food</button></div>
 <div class="card"><div class="cardhead"><h2>📷 Add packaged product</h2><span class="small muted">Photo + manual verification</span></div>
 <div class="field"><label>Product photo (camera or gallery)</label><input id="productPhoto" type="file" accept="image/*" capture="environment"><img id="productPreview" class="productphoto" style="display:none" alt="Product label preview"></div>
-<div class="notice">Take a clear photo of the nutrition label, then enter the values exactly as printed. Automatic Arabic label reading is not enabled in this offline build, so always verify the numbers yourself.</div>
+<button class="soft" id="readLabelBtn" type="button" style="width:100%;margin:8px 0">✨ Read nutrition label automatically (Arabic + English)</button>
+<div id="ocrStatus" class="notice">First use downloads Arabic and English OCR language data. After that, label reading works offline. Always verify extracted values before saving.</div>
+<details id="ocrDetails" style="display:none;margin:8px 0"><summary class="small muted">Show recognized text for review</summary><textarea id="ocrRawText" rows="6" style="width:100%;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--field-bg);color:var(--ink)"></textarea></details>
 <div class="formgrid"><div class="field wide"><label>Product name</label><input id="productName" placeholder="Brand and product name"></div><div class="field"><label>Barcode (optional)</label><input id="productBarcode" inputmode="numeric" placeholder="Scan or type barcode"><button type="button" class="soft small" id="lookupBarcode" style="margin-top:6px">Find product by barcode (online)</button></div><div class="field"><label>Serving size (g)</label><input id="productServing" type="number" min="1" value="100"></div><div class="field"><label>Calories / 100g</label><input id="productK" type="number" min="0"></div><div class="field"><label>Protein / 100g</label><input id="productP" type="number" min="0"></div><div class="field"><label>Fat / 100g</label><input id="productF" type="number" min="0"></div><div class="field"><label>Carbs / 100g</label><input id="productC" type="number" min="0"></div><div class="field"><label>Sugar / 100g</label><input id="productSugar" type="number" min="0"></div></div>
 <button class="primary" id="saveProduct" style="width:100%">Save product to my food database</button></div>
 </section>
@@ -98,7 +100,7 @@ el("saveTargets").onclick=()=>{state.targets={kcal:num(el("targetK").value)||200
 // Product photo capture, compression and persistent product records
 let pendingProductPhoto="";
 el("productPhoto").onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;try{pendingProductPhoto=await compressPhoto(file);el("productPreview").src=pendingProductPhoto;el("productPreview").style.display="block";toast("Photo ready — review the label values") }catch(err){toast("Could not process this photo")}};
-function compressPhoto(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const scale=Math.min(1,720/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);resolve(c.toDataURL("image/jpeg",.58))};img.onerror=reject;img.src=url})}
+function compressPhoto(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const scale=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);resolve(c.toDataURL("image/jpeg",.82))};img.onerror=reject;img.src=url})}
 el("saveProduct").onclick=()=>{const name=el("productName").value.trim();if(!name){toast("Enter the product name");return}const f={id:"p_"+Date.now(),name,ar:"",barcode:el("productBarcode").value.trim(),serving:num(el("productServing").value)||100,kcal:num(el("productK").value),protein:num(el("productP").value),fat:num(el("productF").value),carbs:num(el("productC").value),sugar:num(el("productSugar").value),photo:pendingProductPhoto,source:"product"};if(state.products.some(x=>x.barcode&&x.barcode===f.barcode)||allFoods().some(x=>x.name.toLowerCase()===name.toLowerCase())){toast("A product with this name or barcode already exists");return}state.products.push(f);save();["productName","productBarcode","productK","productP","productF","productC","productSugar"].forEach(id=>el(id).value="");el("productServing").value=100;el("productPhoto").value="";el("productPreview").style.display="none";pendingProductPhoto="";toast("Product saved and ready to reuse");renderSettings()};
 function renderFoodManager(){const host=el("foodManager");if(!host)return;const q=(el("dbSearch")?.value||"").trim().toLowerCase();const items=[...state.customFoods.map((f,i)=>({...f,_type:"custom",_i:i})),...state.products.map((f,i)=>({...f,_type:"product",_i:i}))].filter(f=>!q||[f.name,f.ar,f.barcode].some(v=>String(v||"").toLowerCase().includes(q))).slice(0,80);host.innerHTML=items.map(f=>`<div class="listitem">${f.photo?`<img class="foodthumb" src="${f.photo}" alt="">`:''}<div style="flex:1;min-width:0"><b>${esc(f.name)}</b><div class="tiny">${f._type==="product"?"Packaged product":"Custom food"} · ${fmt(f.kcal)} kcal · P ${fmt(f.protein)} g</div>${f.barcode?`<div class="tiny">${esc(f.barcode)}</div>`:""}</div><button class="soft small" onclick="editFood('${f._type}',${f._i})">Edit</button><button class="danger" onclick="deleteFood('${f._type}',${f._i})">×</button></div>`).join("")||'<div class="empty">No custom foods or products found.</div>'}
 el("dbSearch").oninput=renderFoodManager;
@@ -154,8 +156,46 @@ if(el('lookupBarcode'))el('lookupBarcode').onclick=async()=>{
 };
 // Dark mode preference
 const THEMEKEY='nutritrack_theme';
-function applyTheme(mode){const dark=mode==='dark';document.documentElement.style.setProperty('--bg',dark?'#101a17':'#f3f6f4');document.documentElement.style.setProperty('--card',dark?'#1b2924':'#fff');document.documentElement.style.setProperty('--ink',dark?'#edf5f0':'#182522');document.documentElement.style.setProperty('--line',dark?'#30443a':'#e5ece8');document.documentElement.style.setProperty('--green2',dark?'#263d34':'#e8f4ef');document.documentElement.style.setProperty('--muted',dark?'#a5b7ad':'#718078');document.body.dataset.theme=mode;}
+function applyTheme(mode){const dark=mode==='dark';document.documentElement.style.setProperty('--bg',dark?'#101a17':'#f3f6f4');document.documentElement.style.setProperty('--card',dark?'#1b2924':'#fff');document.documentElement.style.setProperty('--ink',dark?'#edf5f0':'#182522');document.documentElement.style.setProperty('--line',dark?'#30443a':'#e5ece8');document.documentElement.style.setProperty('--field-bg',dark?'#26352f':'#fbfdfb');document.documentElement.style.setProperty('--nav-bg',dark?'#17231fee':'#ffffffed');document.documentElement.style.setProperty('--soft-surface',dark?'#26352f':'#f3f6f4');document.documentElement.style.setProperty('--track-bg',dark?'#30443a':'#e8eeea');document.documentElement.style.setProperty('--green2',dark?'#263d34':'#e8f4ef');document.documentElement.style.setProperty('--muted',dark?'#a5b7ad':'#718078');document.body.dataset.theme=mode;}
 applyTheme(localStorage.getItem(THEMEKEY)||'light');
 if(el('themeToggle'))el('themeToggle').onclick=()=>{const next=document.body.dataset.theme==='dark'?'light':'dark';localStorage.setItem(THEMEKEY,next);applyTheme(next);toast(next==='dark'?'Dark mode enabled':'Light mode enabled')};
+
+
+// NutriTrack 2.2: on-device Arabic + English nutrition-label OCR.
+function normalizeOcrDigits(text){return String(text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٫/g,'.').replace(/,/g,'.');}
+function parseNutritionLabel(raw){
+ const lines=normalizeOcrDigits(raw).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const rules={
+  productK:/energy|calor(?:y|ies)|kcal|طاقة|سعرات|énergie/i,
+  productP:/protein|proteins|protéine|proteines|بروتين/i,
+  productF:/\bfat\b|\bfats\b|lipid|matières grasses|دهون/i,
+  productC:/carbohydrate|carbohydrates|\bcarbs?\b|glucide|كربوهيدرات/i,
+  productSugar:/sugar|sugars|sucres|سكر/i
+ };
+ const found={};
+ for(const [field,re] of Object.entries(rules)){
+  for(let i=0;i<lines.length;i++){
+   if(!re.test(lines[i]))continue;
+   let nums=(lines[i]+' '+(lines[i+1]||'')).match(/\d+(?:\.\d+)?/g)||[];
+   if(field==='productK' && /kJ/i.test(lines[i]) && nums.length>1) nums=[nums[nums.length-1]];
+   if(nums.length){let value=Number(nums[nums.length-1]);if(Number.isFinite(value)&&value>=0&&value<10000){found[field]=value;break}}
+  }
+ }
+ return found;
+}
+if(el('readLabelBtn'))el('readLabelBtn').onclick=()=>{
+ if(!pendingProductPhoto)return toast('Take or choose a product label photo first');
+ if(!window.AndroidBridge||!AndroidBridge.recognizeNutritionLabel){toast('OCR engine is not available in this build');return}
+ const btn=el('readLabelBtn'),status=el('ocrStatus');btn.disabled=true;btn.textContent='Reading label…';status.textContent='Preparing OCR engine and reading the image. First use may download language files; please wait.';
+ setTimeout(()=>{try{
+  const raw=AndroidBridge.recognizeNutritionLabel(pendingProductPhoto);
+  if(String(raw).startsWith('ERROR:')){status.textContent=raw.slice(6);toast('Could not read this label');return}
+  el('ocrRawText').value=raw;el('ocrDetails').style.display='block';
+  const values=parseNutritionLabel(raw);let count=0;
+  for(const [id,value] of Object.entries(values)){el(id).value=value;count++}
+  status.textContent=count?`Found ${count} possible nutrition values. Review and correct every field before saving.`:'Text was recognized, but nutrition values were not confidently matched. Use the recognized text below and enter values manually.';
+  toast(count?'Label read — verify values':'Text read; values need manual review');
+ }catch(e){status.textContent='OCR failed: '+(e.message||e);toast('OCR failed')}finally{btn.disabled=false;btn.textContent='✨ Read nutrition label automatically (Arabic + English)'}},80);
+};
 
 </script></body></html>
