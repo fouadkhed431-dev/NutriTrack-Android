@@ -99,7 +99,11 @@ function renderSettings(){["kcal","protein","fat","carbs"].forEach(k=>el("target
 el("saveTargets").onclick=()=>{state.targets={kcal:num(el("targetK").value)||2000,protein:num(el("targetP").value),fat:num(el("targetF").value),carbs:num(el("targetC").value)};save();renderHome();toast("Targets updated")};
 // Product photo capture, compression and persistent product records
 let pendingProductPhoto="";
-el("productPhoto").onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;try{pendingProductPhoto=await compressPhoto(file);el("productPreview").src=pendingProductPhoto;el("productPreview").style.display="block";toast("Photo ready — review the label values") }catch(err){toast("Could not process this photo")}};
+el("productPhoto").onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;
+ pendingProductPhoto="";["productK","productP","productF","productC","productSugar"].forEach(id=>el(id).value="");
+ el("ocrRawText").value="";el("ocrDetails").style.display="none";el("ocrStatus").textContent="New image selected. Read the label, then verify values before saving.";
+ try{pendingProductPhoto=await compressPhoto(file);el("productPreview").src=pendingProductPhoto;el("productPreview").style.display="block";toast("Photo ready — previous scan values cleared")}
+ catch(err){pendingProductPhoto="";el("productPreview").style.display="none";el("ocrStatus").textContent="Could not process this photo.";toast("Could not process this photo")}};
 function compressPhoto(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const scale=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);resolve(c.toDataURL("image/jpeg",.82))};img.onerror=reject;img.src=url})}
 el("saveProduct").onclick=()=>{const name=el("productName").value.trim();if(!name){toast("Enter the product name");return}const f={id:"p_"+Date.now(),name,ar:"",barcode:el("productBarcode").value.trim(),serving:num(el("productServing").value)||100,kcal:num(el("productK").value),protein:num(el("productP").value),fat:num(el("productF").value),carbs:num(el("productC").value),sugar:num(el("productSugar").value),photo:pendingProductPhoto,source:"product"};if(state.products.some(x=>x.barcode&&x.barcode===f.barcode)||allFoods().some(x=>x.name.toLowerCase()===name.toLowerCase())){toast("A product with this name or barcode already exists");return}state.products.push(f);save();["productName","productBarcode","productK","productP","productF","productC","productSugar"].forEach(id=>el(id).value="");el("productServing").value=100;el("productPhoto").value="";el("productPreview").style.display="none";pendingProductPhoto="";toast("Product saved and ready to reuse");renderSettings()};
 function renderFoodManager(){const host=el("foodManager");if(!host)return;const q=(el("dbSearch")?.value||"").trim().toLowerCase();const items=[...state.customFoods.map((f,i)=>({...f,_type:"custom",_i:i})),...state.products.map((f,i)=>({...f,_type:"product",_i:i}))].filter(f=>!q||[f.name,f.ar,f.barcode].some(v=>String(v||"").toLowerCase().includes(q))).slice(0,80);host.innerHTML=items.map(f=>`<div class="listitem">${f.photo?`<img class="foodthumb" src="${f.photo}" alt="">`:''}<div style="flex:1;min-width:0"><b>${esc(f.name)}</b><div class="tiny">${f._type==="product"?"Packaged product":"Custom food"} · ${fmt(f.kcal)} kcal · P ${fmt(f.protein)} g</div>${f.barcode?`<div class="tiny">${esc(f.barcode)}</div>`:""}</div><button class="soft small" onclick="editFood('${f._type}',${f._i})">Edit</button><button class="danger" onclick="deleteFood('${f._type}',${f._i})">×</button></div>`).join("")||'<div class="empty">No custom foods or products found.</div>'}
@@ -166,7 +170,7 @@ function normalizeOcrDigits(text){return String(text||'').replace(/[٠-٩]/g,d=>
 function parseNutritionLabel(raw){
  const lines=normalizeOcrDigits(raw).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
  const rules={
-  productK:/energy|calor(?:y|ies)|kcal|طاقة|سعرات|énergie/i,
+  productK:/energy|calor(?:y|ies)|طاقة|سعرات|énergie/i,
   productP:/protein|proteins|protéine|proteines|بروتين/i,
   productF:/\bfat\b|\bfats\b|lipid|matières grasses|دهون/i,
   productC:/carbohydrate|carbohydrates|\bcarbs?\b|glucide|كربوهيدرات/i,
@@ -174,11 +178,21 @@ function parseNutritionLabel(raw){
  };
  const found={};
  for(const [field,re] of Object.entries(rules)){
-  for(let i=0;i<lines.length;i++){
-   if(!re.test(lines[i]))continue;
-   let nums=(lines[i]+' '+(lines[i+1]||'')).match(/\d+(?:\.\d+)?/g)||[];
-   if(field==='productK' && /kJ/i.test(lines[i]) && nums.length>1) nums=[nums[nums.length-1]];
-   if(nums.length){let value=Number(nums[nums.length-1]);if(Number.isFinite(value)&&value>=0&&value<10000){found[field]=value;break}}
+  for(const line of lines){
+   const hit=re.exec(line);if(!hit)continue;
+   const tail=line.slice(hit.index+hit[0].length);
+   let value=null;
+   if(field==="productK"){
+    const kcal=tail.match(/(\d+(?:\.\d+)?)\s*kcal\b/i);
+    if(kcal)value=Number(kcal[1]);
+    else {const nums=tail.match(/\d+(?:\.\d+)?/g)||[];if(nums.length===1&&!/kj/i.test(tail))value=Number(nums[0]);}
+    if(value!==null&&value>1000)value=null;
+   }else{
+    const nums=tail.match(/\d+(?:\.\d+)?/g)||[];
+    if(nums.length===1)value=Number(nums[0]);
+    if(value!==null&&value>100)value=null;
+   }
+   if(value!==null&&Number.isFinite(value)&&value>=0){found[field]=value;break;}
   }
  }
  return found;
@@ -188,13 +202,15 @@ if(el('readLabelBtn'))el('readLabelBtn').onclick=()=>{
  if(!window.AndroidBridge||!AndroidBridge.recognizeNutritionLabel){toast('OCR engine is not available in this build');return}
  const btn=el('readLabelBtn'),status=el('ocrStatus');btn.disabled=true;btn.textContent='Reading label…';status.textContent='Preparing OCR engine and reading the image. First use may download language files; please wait.';
  setTimeout(()=>{try{
+  ["productK","productP","productF","productC","productSugar"].forEach(id=>el(id).value="");
+  el("ocrRawText").value="";el("ocrDetails").style.display="none";
   const raw=AndroidBridge.recognizeNutritionLabel(pendingProductPhoto);
   if(String(raw).startsWith('ERROR:')){status.textContent=raw.slice(6);toast('Could not read this label');return}
   el('ocrRawText').value=raw;el('ocrDetails').style.display='block';
   const values=parseNutritionLabel(raw);let count=0;
   for(const [id,value] of Object.entries(values)){el(id).value=value;count++}
-  status.textContent=count?`Found ${count} possible nutrition values. Review and correct every field before saving.`:'Text was recognized, but nutrition values were not confidently matched. Use the recognized text below and enter values manually.';
-  toast(count?'Label read — verify values':'Text read; values need manual review');
+  status.textContent=count?('Found '+count+' possible values on matching OCR lines only. Verify each value and its serving basis before saving.'):'No safe value-to-row matches found. All nutrition fields were left blank; use the recognized text below and enter values manually.';
+  toast(count?'Possible values found — verify before saving':'No safe matches; fields left blank');
  }catch(e){status.textContent='OCR failed: '+(e.message||e);toast('OCR failed')}finally{btn.disabled=false;btn.textContent='✨ Read nutrition label automatically (Arabic + English)'}},80);
 };
 
