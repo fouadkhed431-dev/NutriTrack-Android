@@ -1,0 +1,45 @@
+name: Build NutriTrack V2.4.0 from source archive
+
+on:
+  push:
+    paths:
+      - 'NutriTrack-Android-V2.4.0-Source.zip'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Extract V2.4.0 source
+        run: |
+          mkdir -p /tmp/nutritrack-v24
+          unzip -q NutriTrack-Android-V2.4.0-Source.zip -d /tmp/nutritrack-v24
+          cp -a /tmp/nutritrack-v24/NutriTrack-Android-main/. .
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build APK
+        run: gradle --no-daemon assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NutriTrack-V2.4.0-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
