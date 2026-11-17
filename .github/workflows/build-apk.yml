@@ -44,7 +44,7 @@ jobs:
               raise SystemExit('Planner state default marker missing')
           old='if(obj.foodOverrides!==undefined&&!plain(obj.foodOverrides))throw new Error("Invalid food overrides");'
           if old in s:
-              s=s.replace(old,'if(obj.planner!==undefined&&!Array.isArray(obj.planner))throw new Error("Invalid planner");\\n '+old,1)
+              s=s.replace(old,'if(obj.planner!==undefined&&!Array.isArray(obj.planner))throw new Error("Invalid planner");' + chr(10) + ' ' + old,1)
           p.write_text(s,encoding='utf-8')
           PYCODE
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
