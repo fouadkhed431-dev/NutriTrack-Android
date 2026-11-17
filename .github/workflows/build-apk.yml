@@ -30,6 +30,8 @@ jobs:
           python3 patches/apply-phase0-data-safety.py
           python3 patches/apply-ultimate-upgrade.py
           base64 -d patches/completion-upgrade.py.gz.b64 | gzip -d > patches/apply-completion-upgrade.py
+          sed -i 's/root=Path(__file__).resolve().parents\\[1\\]/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
+          sed -i 's/root=Path(__file__).resolve().parent$/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
           python3 patches/apply-completion-upgrade.py
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
           grep -q 'NutriTrack 3.0' app/src/main/assets/manifest.webmanifest
