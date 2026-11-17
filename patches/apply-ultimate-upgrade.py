@@ -73,15 +73,18 @@ p.write_text(s,encoding="utf-8")
 # Bump Android and PWA release metadata for the integrated major release.
 gradle=root/"app/build.gradle"
 g=gradle.read_text(encoding="utf-8")
-g,n=re.subn(r"versionCode\\s+\\d+","versionCode 12",g,count=1)
-if not n: raise SystemExit("versionCode marker missing")
-g,n=re.subn(r"versionName\\s+['\"]2\\.6\\.2['\"]","versionName '3.0.0'",g,count=1)
-if not n: raise SystemExit("versionName 2.6.2 marker missing")
+if "versionCode 11" in g: g=g.replace("versionCode 11","versionCode 12",1)
+elif "versionCode = 11" in g: g=g.replace("versionCode = 11","versionCode = 12",1)
+else: raise SystemExit("versionCode 11 marker missing")
+if "versionName '2.6.2'" in g: g=g.replace("versionName '2.6.2'","versionName '3.0.0'",1)
+elif 'versionName "2.6.2"' in g: g=g.replace('versionName "2.6.2"','versionName "3.0.0"',1)
+else: raise SystemExit("versionName 2.6.2 marker missing")
 gradle.write_text(g,encoding="utf-8")
 manifest=root/"app/src/main/assets/manifest.webmanifest"
 if manifest.exists():
- m=manifest.read_text(encoding="utf-8")
- m=re.sub(r'"name"\\s*:\\s*"[^"]*"','"name": "NutriTrack 3.0 — Daily Nutrition"',m,count=1)
- m=re.sub(r'"short_name"\\s*:\\s*"[^"]*"','"short_name": "NutriTrack"',m,count=1)
- manifest.write_text(m,encoding="utf-8")
+ import json
+ m=json.loads(manifest.read_text(encoding="utf-8"))
+ m["name"]="NutriTrack 3.0 — Daily Nutrition"
+ m["short_name"]="NutriTrack"
+ manifest.write_text(json.dumps(m,ensure_ascii=False,indent=2),encoding="utf-8")
 print("NutriTrack 3.0 patch applied")
