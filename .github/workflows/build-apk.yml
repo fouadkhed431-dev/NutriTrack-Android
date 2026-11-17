@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           p=Path('patches/apply-completion-upgrade.py')
           s=p.read_text(encoding='utf-8')
-          s='\\n'.join('root=Path(__file__).resolve().parent.parent' if line.startswith('root=Path(__file__).resolve().') else line for line in s.splitlines())+'\\n'
+          s=chr(10).join('root=Path(__file__).resolve().parent.parent' if line.startswith('root=Path(__file__).resolve().') else line for line in s.splitlines())+chr(10)
           p.write_text(s,encoding='utf-8')
           PYROOT
           python3 patches/apply-completion-upgrade.py
