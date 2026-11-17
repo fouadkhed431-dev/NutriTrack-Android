@@ -1,9 +1,9 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'app/src/main/assets/index.html'),'utf8');
-const script=[...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(m=>m[1]).join('\\n');
+const script=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 new vm.Script(script,{filename:'index.html.inline.js'});
-assert(!/\\bsave\\(\\);/.test(script),'Every save call must check persistence result');
+assert(!/\bsave\(\);/.test(script),'Every save call must check persistence result');
 const start=script.indexOf('const DBKEY='),end=script.indexOf('function el(id)',start);
 assert(start>=0&&end>start,'Persistence module missing');
 const core=script.slice(start,end);
@@ -11,7 +11,7 @@ function context(initial=null,fail=false){
  const store=new Map();if(initial!==null)store.set('nutritrack_v2_data',JSON.stringify(initial));
  const localStorage={getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>{if(fail)throw Error('quota');store.set(k,String(v))}};
  const c={localStorage,toast:()=>{},JSON,Number,Array,Object,Error};vm.createContext(c);
- vm.runInContext(core+'\\nglobalThis.api={getState:()=>state,setState:v=>state=v,save,validateBackup,getStored:()=>localStorage.getItem(DBKEY)}',c);return c.api;
+ vm.runInContext(core+'\nglobalThis.api={getState:()=>state,setState:v=>state=v,save,validateBackup,getStored:()=>localStorage.getItem(DBKEY)}',c);return c.api;
 }
 {
  const a=context();a.setState({targets:{kcal:2100,protein:140,fat:60,carbs:230},entries:[{name:'Test',grams:100,kcal:10,protein:1,fat:1,carbs:1}],customFoods:[],meals:[],weights:[],products:[],favorites:[],foodOverrides:{},hiddenReferenceFoods:[]});
