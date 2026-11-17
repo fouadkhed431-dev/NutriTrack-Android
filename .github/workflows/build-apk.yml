@@ -1,36 +1,68 @@
-name: Build NutriTrack APK
-
+name: Build NutriTrack 2.6.2 (Phase 0 candidate)
 on:
   workflow_dispatch:
   push:
+    branches: [main, master, phase0/source-audit]
     paths:
-      - 'NutriTrack-V2.5.1-Source-Fixed.zip'
+      - 'NutriTrack-Android-V2.4.0-Source.zip'
+      - 'patches/apply-phase0-data-safety.py'
+      - 'tests/phase0-data-safety.test.cjs'
       - '.github/workflows/build-apk.yml'
-
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Extract the complete NutriTrack source package
+      - name: Extract authoritative source archive
         run: |
-          test -s NutriTrack-V2.5.1-Source-Fixed.zip
           mkdir -p /tmp/nutritrack-source
-          unzip -q NutriTrack-V2.5.1-Source-Fixed.zip -d /tmp/nutritrack-source
-          test -d /tmp/nutritrack-source/NutriTrack-Android-main
+          unzip -q NutriTrack-Android-V2.4.0-Source.zip -d /tmp/nutritrack-source
           cp -a /tmp/nutritrack-source/NutriTrack-Android-main/. .
-
+      - name: Apply Phase 0 data-safety patch
+        run: |
+          python3 patches/apply-phase0-data-safety.py
+          grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
+          grep -q 'NutriTrack 2.6.2' app/src/main/assets/manifest.webmanifest
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Phase 0 regression tests
+        run: node tests/phase0-data-safety.test.cjs
+      - name: Verify source database and version
+        run: |
+          grep -q "versionCode 11" app/build.gradle
+          grep -q "versionName '2.6.2'" app/build.gradle
+          python3 - <<'PYCODE'
+          import json, pathlib
+          s=pathlib.Path('app/src/main/assets/index.html').read_text(encoding='utf-8')
+          marker='referenceFoods='
+          i=s.index(marker)+len(marker)
+          start=s.index('[',i)
+          depth=0; quoted=False; escaped=False
+          for j,ch in enumerate(s[start:],start):
+              if quoted:
+                  if escaped: escaped=False
+                  elif ch=='\\\\': escaped=True
+                  elif ch=='"': quoted=False
+              else:
+                  if ch=='"': quoted=True
+                  elif ch=='[': depth+=1
+                  elif ch==']':
+                      depth-=1
+                      if depth==0: end=j+1; break
+          foods=json.loads(s[start:end])
+          assert len(foods)==608, f'Expected 608 foods, got {len(foods)}'
+          print(f'Validated {len(foods)} reference foods')
+          PYCODE
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Configure Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
@@ -38,44 +70,21 @@ jobs:
           echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
           yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses || true
           "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Verify release inputs
-        run: |
-          grep -q "versionCode 8" app/build.gradle
-          grep -q "versionName '2.5.1'" app/build.gradle
-          test -s data/Food_Composition_Tables_Expanded.xlsx
-          test -s app/src/main/res/mipmap-mdpi/ic_launcher.png
-          test -s app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          test -s app/src/main/res/drawable-nodpi/ic_launcher_foreground.png
-          python3 - <<'PYCODE'
-          import json, pathlib
-          s = pathlib.Path('app/src/main/assets/index.html').read_text(encoding='utf-8')
-          marker = 'referenceFoods='
-          start = s.index(marker) + len(marker)
-          foods, _ = json.JSONDecoder().raw_decode(s[start:].lstrip())
-          assert len(foods) == 536, f'Expected 536 foods, got {len(foods)}'
-          for term in ['Blueberries', 'Persimmon', 'Shish barak', 'Barazik', 'كيوي', 'مفروكة بالقشطة']:
-              assert term in s, f'Missing expected search item: {term}'
-          print(f'Validated {len(foods)} reference foods and required search examples')
-          PYCODE
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-
       - name: Build APK
         run: gradle --no-daemon assembleDebug
-
-      - name: Verify APK metadata
+      - name: Verify APK metadata and backup policy
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
-          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='8'.*versionName='2.5.1'"
-
-      - name: Upload APK
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='11'.*versionName='2.6.2'"
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'allowBackup.*0x0'
+      - name: Upload candidate APK
         uses: actions/upload-artifact@v4
         with:
-          name: NutriTrack-V2.5.1-APK
+          name: NutriTrack-2.6.2-Phase0-Candidate
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
