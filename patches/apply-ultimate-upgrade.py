@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 root=Path(__file__).resolve().parents[1]
 p=root/"app/src/main/assets/index.html"
 s=p.read_text(encoding="utf-8")
