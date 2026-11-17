@@ -1,4 +1,4 @@
-name: Build NutriTrack 3.0.0 (Phase 0 candidate)
+name: Build NutriTrack 3.0.0 Integrated Release
 on:
   workflow_dispatch:
   push:
@@ -27,7 +27,7 @@ jobs:
           python3 patches/apply-phase0-data-safety.py
           python3 patches/apply-ultimate-upgrade.py
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
-          grep -q 'NutriTrack 2.6.2' app/src/main/assets/manifest.webmanifest
+          grep -q 'NutriTrack 3.0' app/src/main/assets/manifest.webmanifest
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
