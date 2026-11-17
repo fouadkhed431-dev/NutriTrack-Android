@@ -66,6 +66,7 @@ js=r"""
  render();
 })();
 """
+js=js.replace("save();","if(!save())return;")
 i=s.rfind("</script>")
 if i<0: raise SystemExit("script end missing")
 s=s[:i]+js+"\n"+s[i:]
