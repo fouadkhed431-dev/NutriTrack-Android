@@ -30,8 +30,13 @@ jobs:
           python3 patches/apply-phase0-data-safety.py
           python3 patches/apply-ultimate-upgrade.py
           base64 -d patches/completion-upgrade.py.gz.b64 | gzip -d > patches/apply-completion-upgrade.py
-          sed -i 's/root=Path(__file__).resolve().parents\\[1\\]/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
-          sed -i 's/root=Path(__file__).resolve().parent$/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
+          python3 - <<'PYROOT'
+          from pathlib import Path
+          p=Path('patches/apply-completion-upgrade.py')
+          s=p.read_text(encoding='utf-8')
+          s='\\n'.join('root=Path(__file__).resolve().parent.parent' if line.startswith('root=Path(__file__).resolve().') else line for line in s.splitlines())+'\\n'
+          p.write_text(s,encoding='utf-8')
+          PYROOT
           python3 patches/apply-completion-upgrade.py
           python3 - <<'PYCODE'
           from pathlib import Path
