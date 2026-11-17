@@ -23,6 +23,18 @@ jobs:
           mkdir -p /tmp/nutritrack-source
           unzip -q NutriTrack-Android-V2.4.0-Source.zip -d /tmp/nutritrack-source
           cp -a /tmp/nutritrack-source/NutriTrack-Android-main/. .
+      - name: Package source snapshot for feature implementation audit
+        run: |
+          mkdir -p /tmp/nutritrack-audit
+          cp -a app/src/main /tmp/nutritrack-audit/
+          cp -a app/build.gradle /tmp/nutritrack-audit/
+          tar -czf /tmp/nutritrack-source-audit.tar.gz -C /tmp nutritrack-audit
+      - name: Upload source snapshot for audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: NutriTrack-source-audit
+          path: /tmp/nutritrack-source-audit.tar.gz
+          if-no-files-found: error
       - name: Apply Phase 0 data-safety patch
         run: |
           python3 patches/apply-phase0-data-safety.py
