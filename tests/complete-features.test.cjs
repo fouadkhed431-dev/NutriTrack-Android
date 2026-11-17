@@ -10,6 +10,7 @@ assert(scripts.length>0,'Inline application script is missing');
 const script=scripts.join('\n');
 new vm.Script(script,{filename:'NutriTrack-inline.js'});
 assert(script.includes('NUTRITRACK_COMPLETION_3'),'Completion JavaScript marker missing');
+assert(script.includes('planner:[]'),'Weekly planner data must be included in the local backup state');
 for(const id of ['aiProvider','aiSaveKey','aiClearKey','aiTest','aiMealPhoto','aiAnalyzeMeal','aiMealReview','approveMealEstimates','exportPdf','exportExcel','monthBars','monthFat','monthCarbs','weekMacros','mealSummaryToday','planAddSavedMeal','planAlternatives','favoriteToggle'])
   assert(html.includes('id="'+id+'"'),'Missing UI control: '+id);
 for(const method of ['storeAiKey','readAiKey','deleteAiKey','exportPdfReport'])
