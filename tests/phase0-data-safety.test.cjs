@@ -1,9 +1,17 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'app/src/main/assets/index.html'),'utf8');
-const script=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+const openTag='<script>',closeTag='</script>';
+let cursor=0,scripts=[];
+while(true){
+ const a=html.indexOf(openTag,cursor);if(a<0)break;
+ const b=html.indexOf(closeTag,a+openTag.length);if(b<0)throw Error('Unclosed inline script tag');
+ scripts.push(html.slice(a+openTag.length,b));cursor=b+closeTag.length;
+}
+const script=scripts.join('\n');
+assert(script.length>0,'No inline JavaScript found');
 new vm.Script(script,{filename:'index.html.inline.js'});
-assert(!/\bsave\(\);/.test(script),'Every save call must check persistence result');
+assert(!script.includes('save();'),'Every save call must check persistence result');
 const start=script.indexOf('const DBKEY='),end=script.indexOf('function el(id)',start);
 assert(start>=0&&end>start,'Persistence module missing');
 const core=script.slice(start,end);
