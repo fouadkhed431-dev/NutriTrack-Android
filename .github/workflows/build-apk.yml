@@ -33,6 +33,20 @@ jobs:
           sed -i 's/root=Path(__file__).resolve().parents\\[1\\]/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
           sed -i 's/root=Path(__file__).resolve().parent$/root=Path(__file__).resolve().parent.parent/' patches/apply-completion-upgrade.py
           python3 patches/apply-completion-upgrade.py
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html')
+          s=p.read_text(encoding='utf-8')
+          old='favorites:[],foodOverrides:{},hiddenReferenceFoods:[]'
+          if old in s:
+              s=s.replace(old,'favorites:[],planner:[],foodOverrides:{},hiddenReferenceFoods:[]',1)
+          elif 'planner:[]' not in s:
+              raise SystemExit('Planner state default marker missing')
+          old='if(obj.foodOverrides!==undefined&&!plain(obj.foodOverrides))throw new Error("Invalid food overrides");'
+          if old in s:
+              s=s.replace(old,'if(obj.planner!==undefined&&!Array.isArray(obj.planner))throw new Error("Invalid planner");\\n '+old,1)
+          p.write_text(s,encoding='utf-8')
+          PYCODE
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
           grep -q 'NutriTrack 3.0' app/src/main/assets/manifest.webmanifest
       - name: Set up Node.js
