@@ -46,7 +46,7 @@ jobs:
           for j,ch in enumerate(s[start:],start):
               if quoted:
                   if escaped: escaped=False
-                  elif ch=='\\\\': escaped=True
+                  elif ch == chr(92): escaped=True
                   elif ch=='"': quoted=False
               else:
                   if ch=='"': quoted=True
