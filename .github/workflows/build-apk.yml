@@ -1,4 +1,4 @@
-name: Build NutriTrack 2.6.2 (Phase 0 candidate)
+name: Build NutriTrack 3.0.0 (Phase 0 candidate)
 on:
   workflow_dispatch:
   push:
@@ -7,6 +7,7 @@ on:
       - 'NutriTrack-Android-V2.4.0-Source.zip'
       - 'patches/apply-phase0-data-safety.py'
       - 'tests/phase0-data-safety.test.cjs'
+      - 'patches/apply-ultimate-upgrade.py'
       - '.github/workflows/build-apk.yml'
 permissions:
   contents: read
@@ -24,6 +25,7 @@ jobs:
       - name: Apply Phase 0 data-safety patch
         run: |
           python3 patches/apply-phase0-data-safety.py
+          python3 patches/apply-ultimate-upgrade.py
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
           grep -q 'NutriTrack 2.6.2' app/src/main/assets/manifest.webmanifest
       - name: Set up Node.js
@@ -34,8 +36,8 @@ jobs:
         run: node tests/phase0-data-safety.test.cjs
       - name: Verify source database and version
         run: |
-          grep -q "versionCode 11" app/build.gradle
-          grep -q "versionName '2.6.2'" app/build.gradle
+          grep -q "versionCode 12" app/build.gradle
+          grep -q "versionName '3.0.0'" app/build.gradle
           python3 - <<'PYCODE'
           import json, pathlib
           s=pathlib.Path('app/src/main/assets/index.html').read_text(encoding='utf-8')
@@ -80,11 +82,11 @@ jobs:
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
-          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='11'.*versionName='2.6.2'"
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='12'.*versionName='3.0.0'"
           "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'allowBackup.*0x0'
       - name: Upload candidate APK
         uses: actions/upload-artifact@v4
         with:
-          name: NutriTrack-2.6.2-Phase0-Candidate
+          name: NutriTrack-3.0.0-Integrated
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
