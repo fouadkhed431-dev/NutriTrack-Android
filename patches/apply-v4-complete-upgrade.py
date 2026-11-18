@@ -69,7 +69,7 @@ code = r"""
     // existing diary data with a possibly stale IndexedDB snapshot.
     await writeSnapshot({id:SNAP,schemaVersion:4,updatedAt:Date.now(),data:cloneState()});
    }
-   storageStatus.mode="IndexedDB primary + local fallback";
+   storageStatus.mode="localStorage primary + IndexedDB recovery mirror";
    storageStatus.ready=true;
   }catch(e){storageStatus.error=String(e&&e.message||e);storageStatus.mode="localStorage fallback"}
  }
@@ -130,7 +130,7 @@ code = r"""
   const box=document.createElement("div");box.className="card";box.id="ntStorageStatus";
   box.innerHTML='<h2>Data protection</h2><p class="small muted">Your existing diary is preserved. NutriTrack now uses a versioned IndexedDB store with a compatible local fallback.</p><div class="tiny" id="ntStorageState">Checking local database…</div>';
   const backup=el("backup");if(backup&&backup.parentElement&&backup.parentElement.parentElement)backup.parentElement.parentElement.insertAdjacentElement("afterend",box);else settings.appendChild(box);
-  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"IndexedDB ready · local fallback available"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
+  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"LocalStorage primary · IndexedDB recovery mirror ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
   setTimeout(updateStatus,1000);setTimeout(updateStatus,4000);
  }
 })();
