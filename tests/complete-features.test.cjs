@@ -30,7 +30,7 @@ vm.runInContext(sheetFn[0]+'\n'+workbookFn[0]+'\nglobalThis.result=buildWorkbook
 assert(sandbox.result.includes('<Worksheet ss:Name="Food Diary">'));
 assert(sandbox.result.includes('<Worksheet ss:Name="Last 30 Days">'));
 assert(sandbox.result.includes('Rice &amp; chicken'));
-const parseFn=script.match(/function parseMealItems\(raw\)\{[^\n]*\}/);
+const parseFn=script.match(/function parseMealItems\(raw\)\{[\s\S]*?\n \}/);
 assert(parseFn,'Meal estimate parser is missing');
 const parser={num:v=>Number(v)||0};vm.createContext(parser);
 vm.runInContext(parseFn[0]+'\nglobalThis.parse=parseMealItems',parser);
