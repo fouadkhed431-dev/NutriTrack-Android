@@ -21,7 +21,7 @@ on:
 permissions:
   contents: read
 jobs:
-  # Integrated NutriTrack 4.0 complete upgrade pipeline.
+  # Integrated NutriTrack 5.0 ultimate upgrade pipeline.
   build:
     runs-on: ubuntu-latest
     steps:
