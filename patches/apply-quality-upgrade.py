@@ -70,7 +70,11 @@ s = s.replace(needle3, ''' if($("aiConsent"))$("aiConsent").addEventListener("ch
 
 # Mark the release and increment the Android version without touching the
 # package identity or signing configuration.
-s = s.replace("/* NUTRITRACK_COMPLETION_3 */", "/* NUTRITRACK_COMPLETION_3 */\n/* NUTRITRACK_QUALITY_31 */", 1)
+marker = "/* NUTRITRACK_COMPLETION_3 */"
+idx = s.rfind(marker)
+if idx < 0:
+    raise SystemExit("Completion script marker not found")
+s = s[:idx] + marker + "\n/* NUTRITRACK_QUALITY_31 */" + s[idx + len(marker):]
 html_path.write_text(s, encoding="utf-8")
 
 manifest_path = root / "app/src/main/assets/manifest.webmanifest"
