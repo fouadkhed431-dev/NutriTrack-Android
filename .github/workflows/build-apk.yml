@@ -1,4 +1,4 @@
-name: Build NutriTrack 3.0.0 Integrated Release
+name: Build NutriTrack 3.1.0 Quality Upgrade Release
 on:
   workflow_dispatch:
   push:
@@ -11,6 +11,8 @@ on:
       - 'patches/completion-upgrade.py.gz.b64'
       - 'patches/apply-ai-assistant.py'
       - 'tests/complete-features.test.cjs'
+      - 'patches/apply-quality-upgrade.py'
+      - 'tests/quality-upgrade.test.cjs'
       - '.github/workflows/build-apk.yml'
 permissions:
   contents: read
@@ -39,6 +41,7 @@ jobs:
           p.write_text(s,encoding='utf-8')
           PYROOT
           python3 patches/apply-completion-upgrade.py
+          python3 patches/apply-quality-upgrade.py
           python3 - <<'PYCODE'
           from pathlib import Path
           p=Path('app/src/main/assets/index.html')
@@ -54,7 +57,7 @@ jobs:
           p.write_text(s,encoding='utf-8')
           PYCODE
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
-          grep -q 'NutriTrack 3.0' app/src/main/assets/manifest.webmanifest
+          grep -q 'NutriTrack 3.1' app/src/main/assets/manifest.webmanifest
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -63,10 +66,11 @@ jobs:
         run: |
           node tests/phase0-data-safety.test.cjs
           node tests/complete-features.test.cjs
+          node tests/quality-upgrade.test.cjs
       - name: Verify source database and version
         run: |
-          grep -q "versionCode 12" app/build.gradle
-          grep -q "versionName '3.0.0'" app/build.gradle
+          grep -q "versionCode 13" app/build.gradle
+          grep -q "versionName '3.1.0'" app/build.gradle
           python3 - <<'PYCODE'
           import json, pathlib
           s=pathlib.Path('app/src/main/assets/index.html').read_text(encoding='utf-8')
@@ -111,11 +115,11 @@ jobs:
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
-          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='12'.*versionName='3.0.0'"
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='13'.*versionName='3.1.0'"
           "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'allowBackup.*0x0'
       - name: Upload candidate APK
         uses: actions/upload-artifact@v4
         with:
-          name: NutriTrack-3.0.0-Integrated
+          name: NutriTrack-3.1.0-Quality-Upgrade
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
