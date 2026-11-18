@@ -17,7 +17,7 @@ on:
 permissions:
   contents: read
 jobs:
-  # Integrated NutriTrack 3.0 release pipeline (verified save handling).
+  # Integrated NutriTrack 3.1 quality release pipeline (verified persistence and AI input validation).
   build:
     runs-on: ubuntu-latest
     steps:
