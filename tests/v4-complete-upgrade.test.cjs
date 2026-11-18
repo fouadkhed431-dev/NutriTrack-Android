@@ -12,7 +12,7 @@ assert(html.includes('Last 30 days'),'30-day insight UI missing');
 assert(html.includes('normalizeFoodText'),'Normalized multilingual food search missing');
 assert(gradle.includes('versionCode 14')&&gradle.includes("versionName '4.0.0'"),'Android version is not 4.0.0');
 assert(manifest.includes('NutriTrack 4.0'),'PWA version is not 4.0');
-const scripts=[...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(x=>x[1]);
+const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 assert(scripts.length,'Inline JavaScript missing');
 for(const script of scripts)new vm.Script(script,{filename:'NutriTrack-4.0-inline.js'});
 assert(!/sk-[A-Za-z0-9]{20,}/.test(html),'Hard-coded OpenAI key detected');
