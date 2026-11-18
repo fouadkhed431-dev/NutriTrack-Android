@@ -14,7 +14,7 @@ code = r"""
 /* NUTRITRACK_4_0_COMPLETE */
 (function(){
  "use strict";
- const DB_NAME="nutritrack_v4", DB_VERSION=1, STORE="snapshots", SNAP="primary";
+ const DB_NAME="nutritrack_v4", DB_VERSION=2, STORE="snapshots", SNAP="primary";
  let db=null, writeQueue=Promise.resolve(), restoredFromIndexedDB=false, localStorageWriteFailed=false;
  const storageStatus={mode:"localStorage+IndexedDB",ready:false,lastSaved:null,error:null};
  function openStore(){
@@ -34,7 +34,7 @@ code = r"""
  function cloneState(){return JSON.parse(JSON.stringify(state))}
  function mirrorState(){
   if(!db)return;
-  const snapshot={id:SNAP,schemaVersion:4,updatedAt:Date.now(),data:cloneState()};
+  state.__ntSavedAt=Number(state.__ntSavedAt)||Date.now();\n  const snapshot={id:SNAP,schemaVersion:5,updatedAt:state.__ntSavedAt,data:cloneState()};
   writeQueue=writeQueue.then(()=>writeSnapshot(snapshot)).then(()=>{
    storageStatus.lastSaved=snapshot.updatedAt;storageStatus.error=null;
    if(localStorageWriteFailed){try{localStorage.removeItem(DBKEY);localStorageWriteFailed=false}catch(e){storageStatus.error="IndexedDB saved, but the old local copy could not be cleared"}}
@@ -42,39 +42,45 @@ code = r"""
  }
  const originalSave=save;
  save=function(){
-  if(db&&storageStatus.ready){
-   try{localStorage.setItem(DBKEY,JSON.stringify(state));localStorageWriteFailed=false}catch(e){localStorageWriteFailed=true}
-   mirrorState();
-   return true;
-  }
-  const ok=originalSave();
-  if(ok)mirrorState();
-  return ok;
+  state.__ntSavedAt=Date.now();
+  let localOK=false;
+  try{localStorage.setItem(DBKEY,JSON.stringify(state));localStorageWriteFailed=false;localOK=true}catch(e){localStorageWriteFailed=true}
+  if(db&&storageStatus.ready){mirrorState();return true}
+  const ok=localOK||originalSave();
+  return !!ok;
  };
  async function initialize(){
   try{
    db=await openStore();
    const localRaw=localStorage.getItem(DBKEY);
+   let localData=null;
+   try{localData=localRaw?JSON.parse(localRaw):null}catch(e){}
    const stored=await readSnapshot();
-   if(localRaw===null && stored && stored.schemaVersion===4 && stored.data && Array.isArray(stored.data.entries)){
+   const localStamp=Number(localData&&localData.__ntSavedAt)||0;
+   const validSnapshot=stored&&stored.schemaVersion>=4&&stored.data&&Array.isArray(stored.data.entries);
+   const restoreIDB=!!(validSnapshot&&(!localData||(localStamp>0&&Number(stored.updatedAt)>localStamp)));
+   if(restoreIDB){
     state={...defaults,...stored.data,targets:{...defaults.targets,...(stored.data.targets||{})}};
-    originalSave();
     restoredFromIndexedDB=true;
     if(typeof renderHome==="function")renderHome();
     if(typeof renderProgress==="function")renderProgress();
     if(typeof renderSettings==="function")renderSettings();
-    toast("Recovered your latest local data from the on-device recovery database.");
-   }else{
-    // The installed 3.1 local database wins during first migration. Never overwrite
-    // existing diary data with a possibly stale IndexedDB snapshot.
-    await writeSnapshot({id:SNAP,schemaVersion:4,updatedAt:Date.now(),data:cloneState()});
+    toast("Recovered the newest saved diary from the on-device database.");
+   }else if(localData&&Array.isArray(localData.entries)){
+    state={...defaults,...localData,targets:{...defaults.targets,...(localData.targets||{})}};
+   }else if(validSnapshot){
+    state={...defaults,...stored.data,targets:{...defaults.targets,...(stored.data.targets||{})}};
+    restoredFromIndexedDB=true;
    }
-   storageStatus.mode="localStorage primary + IndexedDB recovery mirror";
+   storageStatus.mode="IndexedDB primary + localStorage fallback";
    storageStatus.ready=true;
+   if(!Number(state.__ntSavedAt))state.__ntSavedAt=Date.now();
+   if(!validSnapshot||restoreIDB||!localStamp){mirrorState();try{localStorage.setItem(DBKEY,JSON.stringify(state))}catch(e){localStorageWriteFailed=true}}
+   else if(localStamp>Number(stored.updatedAt||0)){mirrorState()}
   }catch(e){storageStatus.error=String(e&&e.message||e);storageStatus.mode="localStorage fallback"}
  }
  initialize();
- window.NutriTrackStorage={status:()=>({...storageStatus}),flush:()=>writeQueue,restoreFromIndexedDB:async function(){if(!db)throw new Error("IndexedDB is not ready");const x=await readSnapshot();if(!x||!x.data)throw new Error("No recovery snapshot found");state={...defaults,...x.data,targets:{...defaults.targets,...(x.data.targets||{})}};if(!originalSave())throw new Error("Could not restore recovered data to local storage");if(typeof renderHome==="function")renderHome();if(typeof renderProgress==="function")renderProgress();return true}};
+ window.NutriTrackStorage={status:()=>({...storageStatus}),flush:()=>writeQueue,restoreFromIndexedDB:async function(){if(!db)throw new Error("IndexedDB is not ready");const x=await readSnapshot();if(!x||!x.data)throw new Error("No recovery snapshot found");state={...defaults,...x.data,targets:{...defaults.targets,...(x.data.targets||{})}};state.__ntSavedAt=Number(x.updatedAt)||Date.now();if(!save())throw new Error("Could not persist recovered data");await writeQueue;if(typeof renderHome==="function")renderHome();if(typeof renderProgress==="function")renderProgress();return true}};
  // Versioned backup envelope; import still accepts legacy 3.1 plain-state backups.
  const backupButton=el("backup");
  if(backupButton)backupButton.onclick=()=>download("nutritrack-backup-v4-"+dateISO()+".json",JSON.stringify({app:"NutriTrack",schemaVersion:4,exportedAt:new Date().toISOString(),data:state},null,2),"application/json");
@@ -130,7 +136,7 @@ code = r"""
   const box=document.createElement("div");box.className="card";box.id="ntStorageStatus";
   box.innerHTML='<h2>Data protection</h2><p class="small muted">Your existing diary is preserved. NutriTrack now uses a versioned IndexedDB store with a compatible local fallback.</p><div class="tiny" id="ntStorageState">Checking local database…</div>';
   const backup=el("backup");if(backup&&backup.parentElement&&backup.parentElement.parentElement)backup.parentElement.parentElement.insertAdjacentElement("afterend",box);else settings.appendChild(box);
-  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"LocalStorage primary · IndexedDB recovery mirror ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
+  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"IndexedDB primary · localStorage fallback ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
   setTimeout(updateStatus,1000);setTimeout(updateStatus,4000);
  }
 })();
