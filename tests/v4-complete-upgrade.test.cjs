@@ -7,7 +7,8 @@ assert(html.includes('NUTRITRACK_4_0_COMPLETE'),'NutriTrack 4.0 patch marker mis
 assert(html.includes('nutritrack_v4'),'IndexedDB database name missing');
 assert(html.includes('IndexedDB primary + localStorage fallback'),'Storage mode must identify IndexedDB primary with localStorage fallback');
 assert(html.includes('localStorageWriteFailed'),'Local-storage quota fallback logic missing');
-assert(html.includes('schemaVersion:5'),'Versioned IndexedDB primary snapshot missing');\nassert(html.includes('Number(stored.updatedAt)>localStamp'),'Newest IndexedDB snapshot must win during recovery');
+assert(html.includes('schemaVersion:5'),'Versioned IndexedDB primary snapshot missing');
+assert(html.includes('Number(stored.updatedAt)>localStamp'),'Newest IndexedDB snapshot must win during recovery');
 assert(html.includes('schemaVersion:4,exportedAt'),'Versioned backup envelope missing');
 assert(html.includes('validateBackup(payload)'),'Restore must validate both legacy and versioned backups');
 assert(html.includes('Last 30 days'),'30-day insight UI missing');
