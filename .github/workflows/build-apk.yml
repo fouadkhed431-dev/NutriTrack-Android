@@ -21,7 +21,7 @@ on:
 permissions:
   contents: read
 jobs:
-  # Integrated NutriTrack 5.0 ultimate upgrade pipeline.
+  # Integrated NutriTrack 5.0 ultimate upgrade pipeline with IndexedDB-first recovery.
   build:
     runs-on: ubuntu-latest
     steps:
