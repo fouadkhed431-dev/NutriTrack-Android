@@ -34,7 +34,8 @@ code = r"""
  function cloneState(){return JSON.parse(JSON.stringify(state))}
  function mirrorState(){
   if(!db)return;
-  state.__ntSavedAt=Number(state.__ntSavedAt)||Date.now();\n  const snapshot={id:SNAP,schemaVersion:5,updatedAt:state.__ntSavedAt,data:cloneState()};
+  state.__ntSavedAt=Number(state.__ntSavedAt)||Date.now();
+  const snapshot={id:SNAP,schemaVersion:5,updatedAt:state.__ntSavedAt,data:cloneState()};
   writeQueue=writeQueue.then(()=>writeSnapshot(snapshot)).then(()=>{
    storageStatus.lastSaved=snapshot.updatedAt;storageStatus.error=null;
    if(localStorageWriteFailed){try{localStorage.removeItem(DBKEY);localStorageWriteFailed=false}catch(e){storageStatus.error="IndexedDB saved, but the old local copy could not be cleared"}}
