@@ -95,6 +95,7 @@ code = r"""
    const validated=validateBackup(payload),previous=state;
    state=validated;
    if(!save()){state=previous;throw new Error("Could not persist restored data")}
+   await window.NutriTrackStorage.flush();
    if(typeof renderHome==="function")renderHome();
    if(typeof renderSettings==="function")renderSettings();
    if(typeof renderProgress==="function")renderProgress();
