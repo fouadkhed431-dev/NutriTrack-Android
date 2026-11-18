@@ -5,7 +5,7 @@ const gradle=fs.readFileSync(path.join(root,'app/build.gradle'),'utf8');
 const manifest=fs.readFileSync(path.join(root,'app/src/main/assets/manifest.webmanifest'),'utf8');
 assert(html.includes('NUTRITRACK_4_0_COMPLETE'),'NutriTrack 4.0 patch marker missing');
 assert(html.includes('nutritrack_v4'),'IndexedDB database name missing');
-assert(html.includes('IndexedDB primary + local fallback'),'IndexedDB must be primary when available');
+assert(html.includes('localStorage primary + IndexedDB recovery mirror'),'Storage mode must accurately identify localStorage primary and IndexedDB recovery mirror');
 assert(html.includes('localStorageWriteFailed'),'Local-storage quota fallback logic missing');
 assert(html.includes('schemaVersion:4'),'Versioned IndexedDB snapshot missing');
 assert(html.includes('schemaVersion:4,exportedAt'),'Versioned backup envelope missing');
