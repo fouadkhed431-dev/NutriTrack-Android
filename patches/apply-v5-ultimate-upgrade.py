@@ -40,7 +40,7 @@ code = r"""
  function auditData(){
   const entries=Array.isArray(state.entries)?state.entries:[];
   const planner=Array.isArray(state.planner)?state.planner:[];
-  const foods=(Array.isArray(window.referenceFoods)?window.referenceFoods.length:0)+(Array.isArray(state.customFoods)?state.customFoods.length:0)+(Array.isArray(state.products)?state.products.length:0);
+  const foods=(typeof referenceFoods!=="undefined"&&Array.isArray(referenceFoods)?referenceFoods.length:0)+(Array.isArray(state.customFoods)?state.customFoods.length:0)+(Array.isArray(state.products)?state.products.length:0);
   const invalid=entries.filter(x=>!x||typeof x!=="object"||!String(x.name||"").trim()||!/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||""))||["kcal","protein","fat","carbs"].some(k=>!Number.isFinite(Number(x[k]))||Number(x[k])<0)).length;
   let storage={mode:"Not available",ready:false,error:null};
   try{if(window.NutriTrackStorage&&typeof window.NutriTrackStorage.status==="function")storage=window.NutriTrackStorage.status()}catch(e){storage.error=String(e.message||e)}
