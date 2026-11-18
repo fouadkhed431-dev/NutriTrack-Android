@@ -9,6 +9,7 @@ on:
       - 'tests/phase0-data-safety.test.cjs'
       - 'patches/apply-ultimate-upgrade.py'
       - 'patches/completion-upgrade.py.gz.b64'
+      - 'patches/apply-ai-assistant.py'
       - 'tests/complete-features.test.cjs'
       - '.github/workflows/build-apk.yml'
 permissions:
@@ -38,6 +39,7 @@ jobs:
           p.write_text(s,encoding='utf-8')
           PYROOT
           python3 patches/apply-completion-upgrade.py
+          python3 patches/apply-ai-assistant.py
           python3 - <<'PYCODE'
           from pathlib import Path
           p=Path('app/src/main/assets/index.html')
