@@ -12,8 +12,8 @@ assert(html.includes('schemaVersion:4,exportedAt'),'Versioned backup envelope mi
 assert(html.includes('validateBackup(payload)'),'Restore must validate both legacy and versioned backups');
 assert(html.includes('Last 30 days'),'30-day insight UI missing');
 assert(html.includes('normalizeFoodText'),'Normalized multilingual food search missing');
-assert(gradle.includes('versionCode 14')&&gradle.includes("versionName '4.0.0'"),'Android version is not 4.0.0');
-assert(manifest.includes('NutriTrack 4.0'),'PWA version is not 4.0');
+assert(gradle.includes('versionCode 15')&&gradle.includes("versionName '5.0.0'"),'Android version is not the final 5.0.0 release');
+assert(manifest.includes('NutriTrack 5.0'),'PWA version is not the final 5.0 release');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 assert(scripts.length,'Inline JavaScript missing');
 for(const script of scripts)new vm.Script(script,{filename:'NutriTrack-4.0-inline.js'});
