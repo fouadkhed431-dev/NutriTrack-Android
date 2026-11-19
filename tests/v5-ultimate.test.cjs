@@ -7,6 +7,8 @@ assert(html.includes('NUTRITRACK_5_0_ULTIMATE'),'NutriTrack 5.0 marker missing')
 assert(html.includes('Weekly nutrition overview'),'Weekly overview missing');
 assert(html.includes('ntDataHealth'),'Data health UI missing');
 assert(html.includes('read-only check'),'Data health must be read-only');
+assert(html.includes('Run check again'),'User-triggered health recheck missing');
+assert(html.includes('setTimeout(()=>{try{renderDataHealth()}catch(e){}},2500)'),'Storage status must refresh after IndexedDB initialization');
 assert(html.includes('malformed diary records'),'Diary integrity result missing');
 assert(html.includes('window.NutriTrackHealth'),'Health audit API missing');
 assert(gradle.includes('versionCode 15')&&gradle.includes("versionName '5.0.0'"),'Android release metadata incorrect');
