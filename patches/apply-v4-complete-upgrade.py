@@ -136,7 +136,7 @@ code = r"""
  const settings=document.getElementById("settings");
  if(settings){
   const box=document.createElement("div");box.className="card";box.id="ntStorageStatus";
-  box.innerHTML='<h2>Data protection</h2><p class="small muted">Your existing diary is preserved. NutriTrack now uses a versioned IndexedDB store with a compatible local fallback.</p><div class="tiny" id="ntStorageState">Checking local database…</div>';
+  box.innerHTML='<h2>Data protection</h2><p class="small muted">Your existing diary is preserved. Local storage saves changes immediately; IndexedDB keeps a recovery mirror.</p><div class="tiny" id="ntStorageState">Checking local database…</div>';
   const backup=el("backup");if(backup&&backup.parentElement&&backup.parentElement.parentElement)backup.parentElement.parentElement.insertAdjacentElement("afterend",box);else settings.appendChild(box);
   const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"IndexedDB primary · localStorage fallback ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
   setTimeout(updateStatus,1000);setTimeout(updateStatus,4000);
