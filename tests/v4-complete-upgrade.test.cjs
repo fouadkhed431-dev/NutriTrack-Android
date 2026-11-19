@@ -21,7 +21,7 @@ for(const script of scripts)new vm.Script(script,{filename:'NutriTrack-4.0-inlin
 assert(!/sk-[A-Za-z0-9]{20,}/.test(html),'Hard-coded OpenAI key detected');
 assert(!/AIza[0-9A-Za-z_-]{30,}/.test(html),'Hard-coded Gemini key detected');
 console.log('PASS: NutriTrack 4.0 inline JavaScript syntax');
-console.log('PASS: IndexedDB migration/recovery mirror');
+console.log('PASS: IndexedDB recovery mirror with localStorage primary');
 console.log('PASS: legacy and versioned backup compatibility');
 console.log('PASS: 30-day macro and calorie insights');
 console.log('PASS: Arabic/English normalized food search');
