@@ -73,7 +73,7 @@ code = r"""
     state={...defaults,...stored.data,targets:{...defaults.targets,...(stored.data.targets||{})}};
     restoredFromIndexedDB=true;
    }
-   storageStatus.mode="IndexedDB primary + localStorage fallback";
+   storageStatus.mode="localStorage primary + IndexedDB recovery mirror";
    storageStatus.ready=true;
    if(!Number(state.__ntSavedAt))state.__ntSavedAt=Date.now();
    if(!validSnapshot||restoreIDB||!localStamp){mirrorState();try{localStorage.setItem(DBKEY,JSON.stringify(state))}catch(e){localStorageWriteFailed=true}}
@@ -138,7 +138,7 @@ code = r"""
   const box=document.createElement("div");box.className="card";box.id="ntStorageStatus";
   box.innerHTML='<h2>Data protection</h2><p class="small muted">Your existing diary is preserved. Local storage saves changes immediately; IndexedDB keeps a recovery mirror.</p><div class="tiny" id="ntStorageState">Checking local database…</div>';
   const backup=el("backup");if(backup&&backup.parentElement&&backup.parentElement.parentElement)backup.parentElement.parentElement.insertAdjacentElement("afterend",box);else settings.appendChild(box);
-  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"IndexedDB primary · localStorage fallback ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
+  const updateStatus=()=>{const st=storageStatus;const node=el("ntStorageState");if(node)node.textContent=st.ready?"Local storage primary · IndexedDB recovery mirror ready"+(st.lastSaved?" · last mirrored "+new Date(st.lastSaved).toLocaleString():""):(st.error?"Using compatible local storage · "+st.error:"Preparing recovery database…")};
   setTimeout(updateStatus,1000);setTimeout(updateStatus,4000);
  }
 })();
