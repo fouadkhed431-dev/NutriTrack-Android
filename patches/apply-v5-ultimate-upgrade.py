@@ -51,7 +51,7 @@ code = r"""
   let card=$("ntDataHealth");
   if(!card){card=document.createElement("section");card.id="ntDataHealth";card.className="card";const backup=$("backup");if(backup&&backup.parentElement)backup.parentElement.insertAdjacentElement("afterend",card);else settings.appendChild(card)}
   const a=auditData(),warning=a.invalid>0||!!a.storage.error;
-  card.innerHTML='<h2>Data health check</h2><p class="small muted">A read-only check of your diary and saved nutrition data. Nothing is changed or deleted.</p><div class="statgrid"><div class="stat"><b>'+fmt(a.entries)+'</b><small>Diary entries</small></div><div class="stat"><b>'+fmt(a.planner)+'</b><small>Planned meals</small></div><div class="stat"><b>'+fmt(a.foods)+'</b><small>Available foods</small></div></div><p class="small" style="margin-top:10px;color:'+(warning?'var(--red)':'var(--green)')+'">'+(a.invalid?fmt(a.invalid)+' diary records need review.':'No malformed diary records detected.')+'</p><div class="tiny muted">Storage: '+String(a.storage.mode||"unknown")+(a.storage.ready?' · recovery database ready':' · recovery database not ready')+(a.storage.error?' · '+String(a.storage.error):'')+'</div><p class="tiny muted">Recommended: create a JSON backup before changing devices or clearing app data.</p>';
+  card.innerHTML='<h2>Data health check</h2><p class="small muted">A read-only check of your diary and saved nutrition data. Nothing is changed or deleted.</p><div class="statgrid"><div class="stat"><b>'+fmt(a.entries)+'</b><small>Diary entries</small></div><div class="stat"><b>'+fmt(a.planner)+'</b><small>Planned meals</small></div><div class="stat"><b>'+fmt(a.foods)+'</b><small>Available foods</small></div></div><p class="small" style="margin-top:10px;color:'+(warning?'var(--red)':'var(--green)')+'">'+(a.invalid?fmt(a.invalid)+' diary records need review.':'No malformed diary records detected.')+'</p><div class="tiny muted">Storage: '+String(a.storage.mode||"unknown")+(a.storage.ready?' · recovery database ready':' · recovery database not ready')+(a.storage.error?' · '+String(a.storage.error):'')+'</div><p class="tiny muted">Recommended: create a JSON backup before changing devices or clearing app data.</p><button id="ntRunHealth" class="soft" type="button" style="margin-top:10px">Run check again</button>';
  }
  const prevGo=window.go;
  if(typeof prevGo==="function")window.go=function(page){const result=prevGo.apply(this,arguments);if(page==="progress")try{renderWeek()}catch(e){}if(page==="settings")try{renderDataHealth()}catch(e){}return result};
@@ -59,6 +59,8 @@ code = r"""
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{try{renderDataHealth()}catch(e){}});
  else try{renderDataHealth()}catch(e){}
  window.NutriTrackHealth={audit:auditData,refresh:()=>{renderDataHealth();renderWeek();return auditData()}};
+ const healthButton=$("ntRunHealth");if(healthButton)healthButton.addEventListener("click",()=>{const result=window.NutriTrackHealth.refresh();healthButton.textContent=result.invalid?"Review needed":"Check complete";});
+ setTimeout(()=>{try{renderDataHealth()}catch(e){}},2500);
 })();
 """
 idx=s.rfind("</script>")
