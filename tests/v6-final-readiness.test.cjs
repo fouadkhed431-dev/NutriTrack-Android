@@ -4,6 +4,7 @@ const html=fs.readFileSync(path.join(root,'app/src/main/assets/index.html'),'utf
 const java=fs.readFileSync(path.join(root,'app/src/main/java/com/nutritrack/app/MainActivity.java'),'utf8');
 const gradle=fs.readFileSync(path.join(root,'app/build.gradle'),'utf8');
 const manifest=fs.readFileSync(path.join(root,'app/src/main/assets/manifest.webmanifest'),'utf8');
+const settings=fs.readFileSync(path.join(root,'settings.gradle'),'utf8');
 assert(html.includes('NUTRITRACK_6_0_BARCODE_SCANNER'),'Barcode scanner UI marker missing');
 for(const id of ['ntBarcodeImage','ntBarcodeValue','ntBarcodeSearch','ntBarcodeAdd','ntBarcodeSaveNew','ntBarcodeGrams','ntBarcodeMeal'])assert(html.includes('id="'+id+'"'),'Missing barcode UI control '+id);
 assert(html.includes('AndroidBridge.scanBarcode'),'Image barcode scanner bridge is not called');
@@ -12,6 +13,7 @@ assert(java.includes('scanBarcode(String imageDataUrl)'),'Native barcode scanner
 assert(java.includes('import com.google.mlkit.vision.barcode.common.Barcode;'),'Barcode model import package incorrect');
 assert(java.includes('BarcodeScanning.getClient')&&java.includes('Tasks.await(scanner.process'),'ML Kit barcode recognition missing');
 assert(gradle.includes("com.google.mlkit:barcode-scanning:17.3.0"),"ML Kit dependency missing");
+assert(settings.includes('maven-central.storage-download.googleapis.com/maven2/'),'Maven Central fallback mirror missing');
 assert(gradle.includes('versionCode 18')&&gradle.includes("versionName '6.0.0'"),'Android 6.0 release metadata incorrect');
 assert(manifest.includes('NutriTrack 6.0'),'PWA 6.0 release metadata incorrect');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
