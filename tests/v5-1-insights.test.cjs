@@ -8,8 +8,8 @@ assert(html.includes('Macros & weight trend'),'Macro and weight insights UI miss
 assert(html.includes('Latest recorded weight'),'Latest weight summary missing');
 assert(html.includes('Daily macro averages use logged days'),'Macro average calculation disclosure missing');
 assert(html.includes('window.NutriTrackInsights'),'Insights refresh API missing');
-assert(gradle.includes('versionCode 17')&&gradle.includes("versionName '5.2.0'"),'Android version must be 5.1.0/code 16');
-assert(manifest.includes('NutriTrack 5.2'),'PWA version must be 5.1');
+assert(gradle.includes('versionCode 18')&&gradle.includes("versionName '6.0.0'"),'Android version must be 5.1.0/code 16');
+assert(manifest.includes('NutriTrack 6.0'),'PWA version must be 5.1');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 assert(scripts.length,'Inline scripts missing');
 for(const script of scripts)new vm.Script(script,{filename:'NutriTrack-5.1-inline.js'});
