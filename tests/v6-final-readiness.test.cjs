@@ -9,6 +9,7 @@ for(const id of ['ntBarcodeImage','ntBarcodeValue','ntBarcodeSearch','ntBarcodeA
 assert(html.includes('AndroidBridge.scanBarcode'),'Image barcode scanner bridge is not called');
 assert(html.includes('searchFoods(q)'),'Barcode must search the food reference database');
 assert(java.includes('scanBarcode(String imageDataUrl)'),'Native barcode scanner bridge missing');
+assert(java.includes('import com.google.mlkit.vision.barcode.common.Barcode;'),'Barcode model import package incorrect');
 assert(java.includes('BarcodeScanning.getClient')&&java.includes('Tasks.await(scanner.process'),'ML Kit barcode recognition missing');
 assert(gradle.includes("com.google.mlkit:barcode-scanning:17.3.0"),"ML Kit dependency missing");
 assert(gradle.includes('versionCode 18')&&gradle.includes("versionName '6.0.0'"),'Android 6.0 release metadata incorrect');
