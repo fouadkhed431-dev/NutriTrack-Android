@@ -1,4 +1,4 @@
-name: Build NutriTrack 5.1.0 Comprehensive Upgrade Release
+name: Build NutriTrack 5.2.0 Privacy and Consent Upgrade Release
 on:
   workflow_dispatch:
   push:
@@ -17,6 +17,8 @@ on:
       - 'tests/v5-ultimate.test.cjs'
       - 'patches/apply-v5-1-insights.py'
       - 'tests/v5-1-insights.test.cjs'
+      - 'patches/apply-v5-2-privacy-consent.py'
+      - 'tests/v5-2-privacy-consent.test.cjs'
       - 'tests/v4-complete-upgrade.test.cjs'
       - 'tests/quality-upgrade.test.cjs'
       - '.github/workflows/build-apk.yml'
@@ -65,8 +67,9 @@ jobs:
           python3 patches/apply-v4-complete-upgrade.py
           python3 patches/apply-v5-ultimate-upgrade.py
           python3 patches/apply-v5-1-insights.py
+          python3 patches/apply-v5-2-privacy-consent.py
           grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
-          grep -q 'NutriTrack 5.1' app/src/main/assets/manifest.webmanifest
+          grep -q 'NutriTrack 5.2' app/src/main/assets/manifest.webmanifest
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -79,10 +82,11 @@ jobs:
           node tests/v4-complete-upgrade.test.cjs
           node tests/v5-ultimate.test.cjs
           node tests/v5-1-insights.test.cjs
+          node tests/v5-2-privacy-consent.test.cjs
       - name: Verify source database and version
         run: |
-          grep -q "versionCode 16" app/build.gradle
-          grep -q "versionName '5.1.0'" app/build.gradle
+          grep -q "versionCode 17" app/build.gradle
+          grep -q "versionName '5.2.0'" app/build.gradle
           python3 - <<'PYCODE'
           import json, pathlib
           s=pathlib.Path('app/src/main/assets/index.html').read_text(encoding='utf-8')
@@ -127,11 +131,11 @@ jobs:
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
-          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='16'.*versionName='5.1.0'"
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.nutritrack.app'.*versionCode='17'.*versionName='5.2.0'"
           "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'allowBackup.*0x0'
       - name: Upload candidate APK
         uses: actions/upload-artifact@v4
         with:
-          name: NutriTrack-5.1.0-Comprehensive-Upgrade
+          name: NutriTrack-5.2.0-Privacy-Consent-Upgrade
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
