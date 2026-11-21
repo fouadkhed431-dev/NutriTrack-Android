@@ -83,7 +83,7 @@ if "scanBarcode(String imageDataUrl)" not in java:
     import_anchor = "import com.googlecode.tesseract.android.TessBaseAPI;"
     if import_anchor not in java: raise SystemExit("Tesseract import anchor missing")
     java = java.replace(import_anchor, import_anchor + """
-import com.google.mlkit.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
