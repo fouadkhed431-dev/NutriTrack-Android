@@ -10,7 +10,7 @@ assert(html.includes('AndroidBridge.scanBarcode'),'Image barcode scanner bridge 
 assert(html.includes('searchFoods(q)'),'Barcode must search the food reference database');
 assert(java.includes('scanBarcode(String imageDataUrl)'),'Native barcode scanner bridge missing');
 assert(java.includes('BarcodeScanning.getClient')&&java.includes('Tasks.await(scanner.process'),'ML Kit barcode recognition missing');
-assert(gradle.includes("com.google.mlkit:barcode-scanning:17.3.0'),'ML Kit dependency missing");
+assert(gradle.includes("com.google.mlkit:barcode-scanning:17.3.0"),"ML Kit dependency missing");
 assert(gradle.includes('versionCode 18')&&gradle.includes("versionName '6.0.0'"),'Android 6.0 release metadata incorrect');
 assert(manifest.includes('NutriTrack 6.0'),'PWA 6.0 release metadata incorrect');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
