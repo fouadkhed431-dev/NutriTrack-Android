@@ -146,7 +146,7 @@ mirror = 'maven { url = uri("https://maven-central.storage-download.googleapis.c
 if mirror not in settings:
     central = "        mavenCentral()"
     if central not in settings: raise SystemExit("Maven Central repository anchor missing")
-    settings = settings.replace(central, "        " + mirror + "\\n" + central, 1)
+    settings = settings.replace(central, "        " + mirror + "\n" + central, 1)
     settings_path.write_text(settings, encoding="utf-8")
 
 manifest_path = root / "app/src/main/assets/manifest.webmanifest"
