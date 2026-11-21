@@ -47,7 +47,7 @@ if old_description not in s:
     raise SystemExit("AI key privacy description not found")
 s = s.replace(old_description, new_description, 1)
 
-s = s.replace('/* NUTRITRACK_5_1_INSIGHTS */', '/* NUTRITRACK_5_1_INSIGHTS */\\n/* NUTRITRACK_5_2_PRIVACY_CONSENT */', 1)
+s = s.replace('/* NUTRITRACK_5_1_INSIGHTS */', '/* NUTRITRACK_5_1_INSIGHTS */\n/* NUTRITRACK_5_2_PRIVACY_CONSENT */', 1)
 html_path.write_text(s, encoding="utf-8")
 
 gradle_path = root / "app/build.gradle"
