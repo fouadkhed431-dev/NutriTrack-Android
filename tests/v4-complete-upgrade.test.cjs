@@ -13,14 +13,14 @@ assert(html.includes('schemaVersion:4,exportedAt'),'Versioned backup envelope mi
 assert(html.includes('validateBackup(payload)'),'Restore must validate both legacy and versioned backups');
 assert(html.includes('Last 30 days'),'30-day insight UI missing');
 assert(html.includes('normalizeFoodText'),'Normalized multilingual food search missing');
-assert(gradle.includes('versionCode 17')&&gradle.includes("versionName '5.2.0'"),'Android version is not the final 5.1.0 release');
-assert(manifest.includes('NutriTrack 5.2'),'PWA version is not the final 5.1 release');
+assert(gradle.includes('versionCode 18')&&gradle.includes("versionName '6.0.0'"),'Android version is not the final 6.0.0 release');
+assert(manifest.includes('NutriTrack 6.0'),'PWA version is not the final 6.0 release');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 assert(scripts.length,'Inline JavaScript missing');
 for(const script of scripts)new vm.Script(script,{filename:'NutriTrack-4.0-inline.js'});
 assert(!/sk-[A-Za-z0-9]{20,}/.test(html),'Hard-coded OpenAI key detected');
 assert(!/AIza[0-9A-Za-z_-]{30,}/.test(html),'Hard-coded Gemini key detected');
-console.log('PASS: NutriTrack 5.2 inline JavaScript syntax');
+console.log('PASS: NutriTrack 6.0 inline JavaScript syntax');
 console.log('PASS: IndexedDB recovery mirror with localStorage primary');
 console.log('PASS: legacy and versioned backup compatibility');
 console.log('PASS: 30-day macro and calorie insights');
