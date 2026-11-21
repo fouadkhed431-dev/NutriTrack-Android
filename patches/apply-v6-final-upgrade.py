@@ -140,6 +140,15 @@ if "versionCode 17" not in gradle or "versionName '5.2.0'" not in gradle:
 gradle = gradle.replace("versionCode 17", "versionCode 18", 1).replace("versionName '5.2.0'", "versionName '6.0.0'", 1)
 gradle_path.write_text(gradle, encoding="utf-8")
 
+settings_path = root / "settings.gradle"
+settings = settings_path.read_text(encoding="utf-8")
+mirror = 'maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }'
+if mirror not in settings:
+    central = "        mavenCentral()"
+    if central not in settings: raise SystemExit("Maven Central repository anchor missing")
+    settings = settings.replace(central, "        " + mirror + "\\n" + central, 1)
+    settings_path.write_text(settings, encoding="utf-8")
+
 manifest_path = root / "app/src/main/assets/manifest.webmanifest"
 manifest = manifest_path.read_text(encoding="utf-8")
 if "NutriTrack 5.2" not in manifest: raise SystemExit("Expected PWA 5.2 baseline not found")
