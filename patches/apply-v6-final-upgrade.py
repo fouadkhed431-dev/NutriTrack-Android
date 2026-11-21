@@ -120,8 +120,12 @@ import com.google.android.gms.tasks.Tasks;""", 1)
     }
 
 """
-    if method_anchor not in java: raise SystemExit("OCR bridge insertion point missing")
-    java = java.replace(method_anchor, method + method_anchor, 1)
+    class_anchor = "public class AndroidBridge {"
+    class_start = java.find(class_anchor)
+    method_index = java.find("@JavascriptInterface", class_start)
+    if class_start < 0 or method_index < 0:
+        raise SystemExit("AndroidBridge insertion point missing")
+    java = java[:method_index] + method + java[method_index:]
     java_path.write_text(java, encoding="utf-8")
 
 gradle_path = root / "app/build.gradle"
